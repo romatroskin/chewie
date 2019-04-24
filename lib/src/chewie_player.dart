@@ -193,12 +193,12 @@ class _ChewiePlayerState extends State<Chewie> {
     );
 
     SystemChrome.setEnabledSystemUIOverlays([]);
-    if (isAndroid) {
+    // if (isAndroid) {
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
-    }
+    // }
 
     if (!widget.allowedScreenSleep) {
       Screen.keepOn(true);
@@ -215,8 +215,8 @@ class _ChewiePlayerState extends State<Chewie> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
+//      DeviceOrientation.landscapeLeft,
+//      DeviceOrientation.landscapeRight,
     ]);
   }
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:chewie/src/chewie_progress_colors.dart';
 import 'package:chewie/src/material_progress_bar.dart';
 import 'package:chewie/src/utils.dart';
@@ -52,7 +53,7 @@ class _MaterialControlsState extends State<MaterialControls> {
                 _latestValue.isBuffering
             ? Expanded(
                 child: Center(
-                  child: CircularProgressIndicator(),
+                  child: CupertinoActivityIndicator(),
                 ),
               )
             : _buildHitArea(),
