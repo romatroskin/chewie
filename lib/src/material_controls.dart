@@ -21,9 +21,10 @@ class _MaterialControlsState extends State<MaterialControls> {
   double _latestVolume;
   bool _hideStuff = true;
   Timer _hideTimer;
-  Timer _showTimer;
+  Timer _initTimer;
   Timer _showAfterExpandCollapseTimer;
   bool _dragging = false;
+  bool _displayTapped = false;
 
   final barHeight = 48.0;
   final marginSize = 5.0;
@@ -48,24 +49,29 @@ class _MaterialControlsState extends State<MaterialControls> {
             );
     }
 
-    return GestureDetector(
-      onTap: () => _cancelAndRestartTimer(),
-      child: AbsorbPointer(
-        absorbing: _hideStuff,
-        child: Column(
-          children: <Widget>[
-            _latestValue != null &&
-                        !_latestValue.isPlaying &&
-                        _latestValue.duration == null ||
-                    _latestValue.isBuffering
-                ? const Expanded(
-                    child: const Center(
-                      child: const CircularProgressIndicator(),
-                    ),
-                  )
-                : _buildHitArea(),
-            _buildBottomBar(context),
-          ],
+    return MouseRegion(
+      onHover: (_) {
+        _cancelAndRestartTimer();
+      },
+      child: GestureDetector(
+        onTap: () => _cancelAndRestartTimer(),
+        child: AbsorbPointer(
+          absorbing: _hideStuff,
+          child: Column(
+            children: <Widget>[
+              _latestValue != null &&
+                          !_latestValue.isPlaying &&
+                          _latestValue.duration == null ||
+                      _latestValue.isBuffering
+                  ? const Expanded(
+                      child: const Center(
+                        child: const CircularProgressIndicator(),
+                      ),
+                    )
+                  : _buildHitArea(),
+              _buildBottomBar(context),
+            ],
+          ),
         ),
       ),
     );
@@ -80,7 +86,7 @@ class _MaterialControlsState extends State<MaterialControls> {
   void _dispose() {
     controller.removeListener(_updateState);
     _hideTimer?.cancel();
-    _showTimer?.cancel();
+    _initTimer?.cancel();
     _showAfterExpandCollapseTimer?.cancel();
   }
 
@@ -156,15 +162,22 @@ class _MaterialControlsState extends State<MaterialControls> {
   Expanded _buildHitArea() {
     return Expanded(
       child: GestureDetector(
-        onTap: _latestValue != null && _latestValue.isPlaying
-            ? _cancelAndRestartTimer
-            : () {
-                _playPause();
+        onTap: () {
+          if (_latestValue != null && _latestValue.isPlaying) {
+            if (_displayTapped) {
+              setState(() {
+                _hideStuff = true;
+              });
+            } else
+              _cancelAndRestartTimer();
+          } else {
+            _playPause();
 
-                setState(() {
-                  _hideStuff = true;
-                });
-              },
+            setState(() {
+              _hideStuff = true;
+            });
+          }
+        },
         child: Container(
           color: Colors.transparent,
           child: Center(
@@ -273,6 +286,7 @@ class _MaterialControlsState extends State<MaterialControls> {
 
     setState(() {
       _hideStuff = false;
+      _displayTapped = true;
     });
   }
 
@@ -286,11 +300,13 @@ class _MaterialControlsState extends State<MaterialControls> {
       _startHideTimer();
     }
 
-    _showTimer = Timer(Duration(milliseconds: 200), () {
-      setState(() {
-        _hideStuff = false;
+    if (chewieController.showControlsOnInitialize) {
+      _initTimer = Timer(Duration(milliseconds: 200), () {
+        setState(() {
+          _hideStuff = false;
+        });
       });
-    });
+    }
   }
 
   void _onExpandCollapse() {
@@ -307,6 +323,8 @@ class _MaterialControlsState extends State<MaterialControls> {
   }
 
   void _playPause() {
+    bool isFinished = _latestValue.position >= _latestValue.duration;
+
     setState(() {
       if (controller.value.isPlaying) {
         _hideStuff = false;
@@ -320,6 +338,9 @@ class _MaterialControlsState extends State<MaterialControls> {
             controller.play();
           });
         } else {
+          if (isFinished) {
+            controller.seekTo(Duration(seconds: 0));
+          }
           controller.play();
         }
       }
