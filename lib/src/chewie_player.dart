@@ -113,7 +113,6 @@ class ChewieState extends State<Chewie> {
   Future<dynamic> _pushFullScreenWidget(BuildContext context) async {
     final isAndroid = Theme.of(context).platform == TargetPlatform.android;
     final TransitionRoute<Null> route = PageRouteBuilder<Null>(
-      settings: RouteSettings(isInitialRoute: false),
       pageBuilder: _fullScreenRoutePageBuilder,
     );
 
@@ -165,7 +164,7 @@ class ChewieController extends ChangeNotifier {
     this.materialProgressColors,
     this.placeholder,
     this.overlay,
-    this.fullScreenOverlay,
+    this.fullScreenOverlayBuilder,
     this.showControlsOnInitialize = true,
     this.showControls = true,
     this.customControls,
@@ -237,7 +236,7 @@ class ChewieController extends ChangeNotifier {
   final Widget overlay;
 
   /// A widget which is placed between the videol an the controls only when expanded to full screen
-  final Widget fullScreenOverlay;
+  final Widget Function(ChewieController controller) fullScreenOverlayBuilder;
 
   /// Defines if the player will start in fullscreen when play is pressed
   final bool fullScreenByDefault;

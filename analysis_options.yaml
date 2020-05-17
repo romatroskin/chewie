@@ -2,6 +2,8 @@ analyzer:
   strong-mode:
     implicit-casts: false
     implicit-dynamic: false
+  enable-experiment:
+    - control-flow-collections
 
 linter:
   rules:
